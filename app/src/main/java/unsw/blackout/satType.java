@@ -3,17 +3,17 @@ package unsw.blackout;
 import java.util.ArrayList;
 
 public class satType {
-    private String type;
-    private ArrayList<Device> deviceSup = new ArrayList<Device>();
-    private int range;
-    private Store store;
-    private Speed speed;
+    public String type;
+    public ArrayList<String> deviceSup = new ArrayList<String>();
+    public int range;
+    public Store store;
+    public Speed speed;
 
     public String getType() {
         return type;
     }
 
-    public ArrayList<Device> getdeviceSup() {
+    public ArrayList<String> getdeviceSup() {
         return deviceSup;
     }
 

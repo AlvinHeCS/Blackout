@@ -1,6 +1,6 @@
 package unsw.blackout;
 
-public class HandheldDevice {
+public class HandheldDevice extends devType {
     public String type = "HandheldDevice";
-    public int range = 50000000;
+    public int range = 50000;
 }

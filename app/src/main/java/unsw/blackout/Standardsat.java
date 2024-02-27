@@ -5,10 +5,10 @@ public class Standardsat extends satType {
         this.type = "StandardSatellite";
         this.deviceSup.add("HandHeldDevice");
         this.deviceSup.add("LaptopDevice");
-        this.range = 150000000;
+        this.range = 150000;
         Store standardStore = new Store(3, 80);
         this.store = standardStore;
-        Speed standardSpeed = new Speed(2500000, 1, 1);
+        Speed standardSpeed = new Speed(2500, 1, 1);
         this.speed = standardSpeed;
     }
 }

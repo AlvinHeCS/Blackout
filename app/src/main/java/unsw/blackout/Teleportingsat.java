@@ -6,10 +6,10 @@ public class Teleportingsat extends satType {
         this.deviceSup.add("HandHeldDevice");
         this.deviceSup.add("LaptopDevice");
         this.deviceSup.add("DesktopDevice");
-        this.range = 200000000;
+        this.range = 200000;
         Store standardStore = new Store(2147483647, 80);
         this.store = standardStore;
-        Speed standardSpeed = new Speed(1000000, 15, 10);
+        Speed standardSpeed = new Speed(1000, 15, 10);
         this.speed = standardSpeed;
     }
 }

@@ -6,10 +6,10 @@ public class Relaysat extends satType {
         this.deviceSup.add("HandHeldDevice");
         this.deviceSup.add("LaptopDevice");
         this.deviceSup.add("DesktopDevice");
-        this.range = 300000000;
+        this.range = 300000;
         Store standardStore = new Store(0, 0);
         this.store = standardStore;
-        Speed standardSpeed = new Speed(1500000, 0, 0);
+        Speed standardSpeed = new Speed(1500, 0, 0);
         this.speed = standardSpeed;
     }
 }

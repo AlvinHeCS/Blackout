@@ -13,11 +13,11 @@ import unsw.utils.Angle;
  * signatures
  */
 public class BlackoutController {
-    //private ArrayList<Satellite> satellites = new ArrayList<Satellite>();
+    private ArrayList<Satellite> satellites = new ArrayList<Satellite>();
 
     public void createDevice(String deviceId, String type, Angle position) {
-        //Satellite satellite = new Satellite();
-        //satellites.add(satellite);
+        Satellite satellite = new Satellite();
+        satellites.add(satellite);
     }
 
     public void removeDevice(String deviceId) {

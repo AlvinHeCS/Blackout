@@ -2,13 +2,15 @@ package unsw.blackout;
 
 import java.util.ArrayList;
 
+import unsw.utils.Angle;
+
 public class Device {
     private String name;
     private devType type;
-    private int degree;
+    private Angle degree;
     private ArrayList<File> files = new ArrayList<File>();
 
-    public Device(String name, devType type, int degree, ArrayList<File> files) {
+    public Device(String name, devType type, Angle degree, ArrayList<File> files) {
         this.name = name;
         this.type = type;
         this.degree = degree;
@@ -23,7 +25,7 @@ public class Device {
         return type;
     }
 
-    public int getDegree() {
+    public Angle getDegree() {
         return degree;
     }
 

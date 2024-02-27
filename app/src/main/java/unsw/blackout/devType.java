@@ -1,13 +1,14 @@
 package unsw.blackout;
 
 public abstract class devType {
-    private String name;
-    private int range;
+    public String type;
+    public int range;
 
-    public String getName() {
-        return name;
+    public String getType() {
+        return type;
     }
+
     public int getRange() {
         return range;
-    } 
+    }
 }
