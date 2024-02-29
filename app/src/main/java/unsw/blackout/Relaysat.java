@@ -2,14 +2,14 @@ package unsw.blackout;
 
 public class Relaysat extends satType {
     public Relaysat() {
-        this.type = "RelaySatellite";
-        this.deviceSup.add("HandHeldDevice");
-        this.deviceSup.add("LaptopDevice");
-        this.deviceSup.add("DesktopDevice");
-        this.range = 300000;
+        super.type = "RelaySatellite";
+        super.deviceSup.add("HandHeldDevice");
+        super.deviceSup.add("LaptopDevice");
+        super.deviceSup.add("DesktopDevice");
+        super.range = 300000;
         Store standardStore = new Store(0, 0);
-        this.store = standardStore;
+        super.store = standardStore;
         Speed standardSpeed = new Speed(1500, 0, 0);
-        this.speed = standardSpeed;
+        super.speed = standardSpeed;
     }
 }

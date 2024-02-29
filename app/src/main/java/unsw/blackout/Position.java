@@ -4,12 +4,12 @@ import unsw.utils.Angle;
 
 public class Position {
     // anti-clockwise or clockwise
-    private String direction;
-    private int height;
+    //private String direction;
+    private double height;
     private Angle degree;
 
-    public Position(String direction, int height, Angle degree) {
-        this.direction = direction;
+    public Position(double height, Angle degree) {
+        //this.direction = direction;
         this.height = height;
         this.degree = degree;
     }
@@ -18,11 +18,7 @@ public class Position {
         return degree;
     }
 
-    public String getDirection() {
-        return direction;
-    }
-
-    public int getHeight() {
+    public double getHeight() {
         return height;
     }
 }

@@ -2,14 +2,14 @@ package unsw.blackout;
 
 public class Teleportingsat extends satType {
     public Teleportingsat() {
-        this.type = "TeleportingSatellite";
-        this.deviceSup.add("HandHeldDevice");
-        this.deviceSup.add("LaptopDevice");
-        this.deviceSup.add("DesktopDevice");
-        this.range = 200000;
+        super.type = "TeleportingSatellite";
+        super.deviceSup.add("HandHeldDevice");
+        super.deviceSup.add("LaptopDevice");
+        super.deviceSup.add("DesktopDevice");
+        super.range = 200000;
         Store standardStore = new Store(2147483647, 80);
-        this.store = standardStore;
+        super.store = standardStore;
         Speed standardSpeed = new Speed(1000, 15, 10);
-        this.speed = standardSpeed;
+        super.speed = standardSpeed;
     }
 }

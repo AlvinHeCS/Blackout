@@ -2,7 +2,7 @@ package unsw.blackout;
 
 import java.util.ArrayList;
 
-public class satType {
+public abstract class satType {
     public String type;
     public ArrayList<String> deviceSup = new ArrayList<String>();
     public int range;
