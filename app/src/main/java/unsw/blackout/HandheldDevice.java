@@ -1,6 +1,11 @@
 package unsw.blackout;
 
-public class HandheldDevice extends devType {
-    public String type = "HandheldDevice";
-    public int range = 50000;
+import unsw.utils.Angle;
+
+public class HandheldDevice extends Device {
+    public HandheldDevice(String deviceId, String type, Angle position) {
+        setName(deviceId);
+        setDegree(position);
+        setRange(50000);
+    }
 }

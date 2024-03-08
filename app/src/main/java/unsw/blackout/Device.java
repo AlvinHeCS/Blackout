@@ -4,15 +4,18 @@ import java.util.ArrayList;
 
 import unsw.utils.Angle;
 
-public class Device {
+public abstract class Device {
     private String name;
-    private devType type;
     private Angle degree;
     private ArrayList<File> files = new ArrayList<File>();
+    private int range;
 
-    public Device(String name, Angle degree) {
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
         this.name = name;
-        this.degree = degree;
     }
 
     public void addFile(String filename, String content) {
@@ -20,32 +23,23 @@ public class Device {
         this.files.add(file);
     }
 
-    public String getName() {
-        return name;
+    public ArrayList<File> getFiles() {
+        return files;
     }
 
     public Angle getDegree() {
         return degree;
     }
 
-    public void setdevType(String devType) {
-        switch (devType) {
-        case "HandheldDevice":
-            this.type = new HandheldDevice();
-            break;
-        case "LaptopDevice":
-            this.type = new LaptopDevice();
-            break;
-        case "DesktopDevice":
-            this.type = new DesktopDevice();
-            break;
-        default:
-            break;
-        }
+    public void setDegree(Angle degree) {
+        this.degree = degree;
     }
 
-    public ArrayList<File> getFiles() {
-        return files;
+    public int getRange() {
+        return range;
     }
 
+    public void setRange(int range) {
+        this.range = range;
+    }
 }
