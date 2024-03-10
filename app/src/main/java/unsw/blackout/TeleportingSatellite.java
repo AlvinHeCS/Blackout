@@ -3,24 +3,21 @@ package unsw.blackout;
 import unsw.utils.Angle;
 import java.util.ArrayList;
 
-public class StandardSatellite extends Satellite implements fileSatellite {
+public class TeleportingSatellite extends Satellite implements fileSatellite {
     private int[] fileLimit = new int[2];
     private int[] fileTransferSpeed = new int[2];
     private ArrayList<File> files = new ArrayList<File>();
 
-    public StandardSatellite(String satelliteId, double height, Angle position) {
+    public TeleportingSatellite(String satelliteId, double height, Angle position) {
         setName(satelliteId);
-        setType("StandardSatellite");
-        setDirection("clockwise");
+        setType("TeleportingSatellite");
+        setDirection("anticlockwise");
         setDegree(position);
-        setRange(150000);
+        setRange(200000);
         setHeight(height);
-        ArrayList<String> devices = new ArrayList<>();
-        devices.add("DesktopDevice");
-        setDeviceNotSup(devices);
-        setLinearSpeed(2500);
-        setFileLimit(3, 80);
-        setFileTransferSpeeds(1, 1);
+        setLinearSpeed(1000);
+        setFileLimit(2147483647, 200);
+        setFileTransferSpeeds(15, 10);
     }
 
     public ArrayList<File> getFiles() {
@@ -53,7 +50,20 @@ public class StandardSatellite extends Satellite implements fileSatellite {
         this.fileTransferSpeed[1] = sending;
     }
 
-    public void standardSatelliteMovement() {
+    public void teleportingSatelliteMovement() {
+        double angularVelocity = this.getLinearSpeed() / this.getHeight();
+        if (this.getDirection().equals("anticlockwise") && this.getDegree().toRadians() + angularVelocity >= Math.PI) {
+            this.setDirection("clockwise");
+            this.setDegree(Angle.fromDegrees(360));
+            System.out.println("it went through anticlockwise");
+            return;
+        }
+        if (this.getDirection().equals("clockwise") && this.getDegree().toRadians() - angularVelocity <= Math.PI) {
+            this.setDirection("anticlockwise");
+            this.setDegree(Angle.fromDegrees(0));
+            System.out.println("it went through clockwise");
+            return;
+        }
         super.movement();
     }
 }

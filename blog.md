@@ -8,3 +8,6 @@ Starting of coding assignment making files and building connections. alot of gro
 
 8/03/24
 changed UML diagram bsed on advice from tutors and new knowedlge of UML diagrams. altered code to reflect these changes. Next time I start coding make sure to implement the interface for standard satellite and finish of stage 1
+
+10/03/24 
+conintue standard satellite movement downcasting to call method

@@ -6,25 +6,23 @@ import java.util.ArrayList;
 public abstract class Satellite {
     private String name;
     private String direction;
-    private int height;
+    private double height;
     private Angle degree;
-    private ArrayList<File> files = new ArrayList<File>();
-    private ArrayList<String> deviceSup = new ArrayList<String>();
+    private ArrayList<String> deviceNotSup = new ArrayList<String>();
     private int range;
-    private int[] fileLimit = new int[2];
     private int linearSpeed;
-    private int[] fileTransferSpeed = new int[2];
-
-    public boolean addFile(File file) {
-        if (this.files.size() >= this.fileLimit[0] || file.getSize() > this.fileLimit[1]) {
-            return false;
-        }
-        this.files.add(file);
-        return true;
-    }
+    private String type;
 
     public String getName() {
-        return name;
+        return this.name;
+    }
+
+    public String getType() {
+        return this.type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public void setName(String name) {
@@ -32,18 +30,18 @@ public abstract class Satellite {
     }
 
     public String getDirection() {
-        return direction;
+        return this.direction;
     }
 
     public void setDirection(String direction) {
         this.direction = direction;
     }
 
-    public int getHeight() {
+    public double getHeight() {
         return this.height;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(double height) {
         this.height = height;
     }
 
@@ -55,16 +53,16 @@ public abstract class Satellite {
         this.degree = degree;
     }
 
-    public ArrayList<String> getDeviceSup() {
-        return deviceSup;
+    public ArrayList<String> getDeviceNotSup() {
+        return this.deviceNotSup;
     }
 
-    public void setDeviceSup(ArrayList<String> deviceSup) {
-        this.deviceSup = deviceSup;
+    public void setDeviceNotSup(ArrayList<String> deviceNotSup) {
+        this.deviceNotSup = deviceNotSup;
     }
 
     public int getRange() {
-        return range;
+        return this.range;
     }
 
     public void setRange(int range) {
@@ -72,28 +70,35 @@ public abstract class Satellite {
     }
 
     public int getLinearSpeed() {
-        return linearSpeed;
+        return this.linearSpeed;
     }
 
     public void setLinearSpeed(int linearSpeed) {
         this.linearSpeed = linearSpeed;
     }
 
-    public void setTransferSpeed(int recieving, int sending) {
-        this.fileTransferSpeed[0] = recieving;
-        this.fileTransferSpeed[1] = sending;
+    private void clockwise(double angularVelocity) {
+        if (this.getDegree().toRadians() - angularVelocity <= 0) {
+            this.setDegree(Angle.fromRadians(2 * Math.PI + (this.getDegree().toRadians() - angularVelocity)));
+        } else {
+            this.setDegree(Angle.fromRadians(this.getDegree().toRadians() - angularVelocity));
+        }
     }
 
-    public int[] getTransferSpeed() {
-        return fileTransferSpeed;
+    private void anticlockwise(double angularVelocity) {
+        if (this.getDegree().toRadians() + angularVelocity > 2 * Math.PI) {
+            this.setDegree(Angle.fromRadians((this.getDegree().toRadians() + angularVelocity) - 2 * Math.PI));
+        } else {
+            this.setDegree(Angle.fromRadians(this.getDegree().toRadians() + angularVelocity));
+        }
     }
 
-    public int[] getFileLimit() {
-        return fileLimit;
-    }
-
-    public void setFileLimit(int fileQuantity, int fileSize) {
-        this.fileLimit[0] = fileQuantity;
-        this.fileLimit[1] = fileSize;
+    public void movement() {
+        double angularVelocity = this.linearSpeed / this.height;
+        if (this.direction.equals("clockwise")) {
+            this.clockwise(angularVelocity);
+        } else {
+            this.anticlockwise(angularVelocity);
+        }
     }
 }

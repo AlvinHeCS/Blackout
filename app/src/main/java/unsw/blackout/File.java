@@ -12,14 +12,14 @@ public class File {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
-    public String getRange() {
-        return content;
+    public String getContent() {
+        return this.content;
     }
 
     public int getSize() {
-        return size;
+        return this.size;
     }
 }

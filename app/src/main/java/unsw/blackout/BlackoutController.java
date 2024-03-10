@@ -2,9 +2,15 @@ package unsw.blackout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import unsw.response.models.EntityInfoResponse;
+import unsw.response.models.FileInfoResponse;
 import unsw.utils.Angle;
+import static unsw.utils.MathsHelper.RADIUS_OF_JUPITER;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The controller for the Blackout system.
@@ -17,69 +23,85 @@ public class BlackoutController {
     private ArrayList<Device> devices = new ArrayList<Device>();
 
     public void createDevice(String deviceId, String type, Angle position) {
-        Device device = new Device(deviceId, position);
-        device.setdevType(type);
+        Device device;
+        if (type.equals("HandheldDevice")) {
+            device = new HandheldDevice(deviceId, position);
+        } else if (type.equals("LaptopDevice")) {
+            device = new LaptopDevice(deviceId, position);
+        } else if (type.equals("DesktopDevice")) {
+            device = new DesktopDevice(deviceId, position);
+        } else {
+            return;
+        }
         devices.add(device);
-        // check if device is unique before adding it
     }
 
     public void removeDevice(String deviceId) {
-        for (Device device : devices) {
-            if (device.getName().equals(deviceId)) {
-                devices.remove(device);
-            }
-        }
+        devices.removeIf(obj -> obj.getName().equals(deviceId));
     }
 
     public void createSatellite(String satelliteId, String type, double height, Angle position) {
-        Satellite satellite = new Satellite(satelliteId);
-        satellite.setsatType(type);
-        satellite.setPosition(height, position);
+        Satellite satellite;
+        if (type.equals("StandardSatellite")) {
+            satellite = new StandardSatellite(satelliteId, height, position);
+        } else if (type.equals("TeleportingSatellite")) {
+            satellite = new TeleportingSatellite(satelliteId, height, position);
+        } else if (type.equals("RelaySatellite")) {
+            satellite = new RelaySatellite(satelliteId, height, position);
+        } else {
+            return;
+        }
         satellites.add(satellite);
-        // check if satellite is unique before adding it
-
     }
 
     public void removeSatellite(String satelliteId) {
-        for (Satellite satellite : satellites) {
-            if (satellite.getName().equals(satelliteId)) {
-                satellites.remove(satellite);
-            }
-        }
+        satellites.removeIf(obj -> obj.getName().equals(satelliteId));
     }
 
     public List<String> listDeviceIds() {
-        List<String> deviceIds = new ArrayList<String>();
-        for (Device device : devices) {
-            deviceIds.add(device.getName());
-        }
-        return deviceIds;
+        return devices.stream().map(n -> n.getName()).collect(Collectors.toList());
     }
 
     public List<String> listSatelliteIds() {
-        List<String> satelliteIds = new ArrayList<String>();
-        for (Satellite satellite : satellites) {
-            satelliteIds.add(satellite.getName());
-        }
-        return satelliteIds;
+        return satellites.stream().map(n -> n.getName()).collect(Collectors.toList());
     }
 
     public void addFileToDevice(String deviceId, String filename, String content) {
-        // check if fileId is unique
-        for (Device device : devices) {
-            if (device.getName().equals(deviceId)) {
-                device.addFile(filename, content);
-            }
-        }
+        Optional<Device> object = devices.stream().filter(obj -> obj.getName().equals(deviceId)).findFirst();
+        Device device = object.get();
+        device.addFile(filename, content);
     }
 
     public EntityInfoResponse getInfo(String id) {
-        // TODO: Task 1h)
-        return null;
+        // temp map
+        Map<String, FileInfoResponse> map = new HashMap<>();
+        if (devices.stream().anyMatch(obj -> obj.getName().equals(id))) {
+            Optional<Device> object = devices.stream().filter(obj -> obj.getName().equals(id)).findFirst();
+            Device device = object.get();
+
+            return new EntityInfoResponse(id, device.getDegree(), RADIUS_OF_JUPITER, device.getType(), map);
+        } else {
+            Optional<Satellite> object = satellites.stream().filter(obj -> obj.getName().equals(id)).findFirst();
+            Satellite satellite = object.get();
+            return new EntityInfoResponse(id, satellite.getDegree(), satellite.getHeight(), satellite.getType(), map);
+        }
     }
 
     public void simulate() {
-        // TODO: Task 2a)
+        // move satellites
+        for (Satellite satellite : satellites) {
+            if (satellite.getType().equals("StandardSatellite")) {
+                StandardSatellite standardSatellite = (StandardSatellite) satellite;
+                standardSatellite.standardSatelliteMovement();
+            }
+            if (satellite.getType().equals("TeleportingSatellite")) {
+                TeleportingSatellite teleportingSatellite = (TeleportingSatellite) satellite;
+                teleportingSatellite.teleportingSatelliteMovement();
+            }
+        }
+
+        // during the move check if
+        // 
     }
 
     /**
