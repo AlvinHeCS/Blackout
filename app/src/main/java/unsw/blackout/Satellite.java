@@ -2,6 +2,8 @@ package unsw.blackout;
 
 import unsw.utils.Angle;
 import java.util.ArrayList;
+import static unsw.utils.MathsHelper.isVisible;
+import static unsw.utils.MathsHelper.getDistance;
 
 public abstract class Satellite {
     private String name;
@@ -101,4 +103,22 @@ public abstract class Satellite {
             this.anticlockwise(angularVelocity);
         }
     }
+
+    public boolean checkSatelliteCommunicatable(Object object) {
+        if (object instanceof Satellite) {
+            Satellite satellite = (Satellite) object;
+            if (isVisible(height, degree, satellite.getHeight(), satellite.getDegree())
+                    && getDistance(height, this.getDegree(), satellite.getHeight(), satellite.getDegree()) < range) {
+                return true;
+            }
+        } else {
+            Device device = (Device) object;
+            if (isVisible(height, degree, device.getDegree())
+                    && getDistance(height, degree, device.getDegree()) < range) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

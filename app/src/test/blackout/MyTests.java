@@ -51,7 +51,7 @@ public class MyTests {
 
     // write an addfile get info Test
 
-    // write a test for standard satellite movement
+    // did movement test by hand by comparing to simulation
     @Test
     public void testStandardSatelliteMovement() {
         BlackoutController controller = new BlackoutController();
@@ -67,4 +67,91 @@ public class MyTests {
         controller.simulate(260);
         System.out.println(controller.getInfo("SatA"));
     }
+
+    @Test
+    public void testRelayMovement() {
+        BlackoutController controller = new BlackoutController();
+        controller.createSatellite("SatA", "RelaySatellite", 100 + RADIUS_OF_JUPITER, Angle.fromDegrees(190));
+        controller.simulate(1);
+        System.out.println(controller.getInfo("SatA"));
+    }
+
+    @Test
+    public void testRangeSatellitetoSatellite() {
+        // Task 2
+        // Example from the specification
+        BlackoutController controller = new BlackoutController();
+
+        // Creates 1 satellite and 2 devices
+        // Gets a device to send a file to a satellites and gets another device to download it.
+        // StandardSatellites are slow and transfer 1 byte per minute.
+        controller.createSatellite("Satellite2", "StandardSatellite", 79181, Angle.fromDegrees(148.26));
+        controller.createDevice("DeviceB", "HandheldDevice", Angle.fromDegrees(180));
+        controller.createSatellite("Satellite3", "TeleportingSatellite", 75800, Angle.fromDegrees(204.82));
+        controller.createDevice("DeviceC", "HandheldDevice", Angle.fromDegrees(320));
+        controller.createSatellite("Satellite4", "StandardSatellite", 76123, Angle.fromDegrees(170.57));
+
+        assertListAreEqualIgnoringOrder(Arrays.asList("Satellite4"),
+                controller.communicableEntitiesInRange("Satellite3"));
+
+    }
+
+    @Test
+    public void testRangewithRelayDeviceToSatellite() {
+        // Task 2
+        // Example from the specification
+        BlackoutController controller = new BlackoutController();
+
+        // Creates 1 satellite and 2 devices
+        // Gets a device to send a file to a satellites and gets another device to download it.
+        // StandardSatellites are slow and transfer 1 byte per minute.
+        controller.createSatellite("Satellite1", "RelaySatellite", 76123, Angle.fromDegrees(170.57));
+        controller.createSatellite("Satellite2", "StandardSatellite", 79181, Angle.fromDegrees(148.26));
+        controller.createDevice("DeviceB", "HandheldDevice", Angle.fromDegrees(180));
+
+        assertListAreEqualIgnoringOrder(Arrays.asList("Satellite1", "Satellite2"),
+                controller.communicableEntitiesInRange("DeviceB"));
+    }
+
+    @Test
+    public void testRangewithRelaySatelliteToSatellite() {
+        // Task 2
+        // Example from the specification
+        BlackoutController controller = new BlackoutController();
+
+        // Creates 1 satellite and 2 devices
+        // Gets a device to send a file to a satellites and gets another device to download it.
+        // StandardSatellites are slow and transfer 1 byte per minute.
+        controller.createSatellite("Satellite1", "RelaySatellite", 76123, Angle.fromDegrees(170.57));
+        controller.createSatellite("Satellite2", "StandardSatellite", 79181, Angle.fromDegrees(148.26));
+        controller.createDevice("DeviceB", "HandheldDevice", Angle.fromDegrees(180));
+        controller.createSatellite("Satellite3", "TeleportingSatellite", 75800, Angle.fromDegrees(204.82));
+        controller.createDevice("DeviceC", "HandheldDevice", Angle.fromDegrees(320));
+
+        assertListAreEqualIgnoringOrder(Arrays.asList("Satellite1", "Satellite2", "DeviceB"),
+                controller.communicableEntitiesInRange("Satellite3"));
+
+    }
+
+    @Test
+    public void testRangeMultiSatelliteDeviceWithRelay() {
+        // Task 2
+        // Example from the specification
+        BlackoutController controller = new BlackoutController();
+
+        // Creates 1 satellite and 2 devices
+        // Gets a device to send a file to a satellites and gets another device to download it.
+        // StandardSatellites are slow and transfer 1 byte per minute.
+        controller.createSatellite("Satellite1", "RelaySatellite", 76123, Angle.fromDegrees(170.57));
+        controller.createSatellite("Satellite2", "StandardSatellite", 79181, Angle.fromDegrees(148.26));
+        controller.createDevice("DeviceB", "HandheldDevice", Angle.fromDegrees(180));
+        controller.createSatellite("Satellite3", "TeleportingSatellite", 75800, Angle.fromDegrees(204.82));
+        controller.createDevice("DeviceC", "HandheldDevice", Angle.fromDegrees(320));
+        controller.createSatellite("Satellite4", "StandardSatellite", 76123, Angle.fromDegrees(170.57));
+
+        assertListAreEqualIgnoringOrder(Arrays.asList("Satellite1", "Satellite2", "DeviceB", "Satellite4"),
+                controller.communicableEntitiesInRange("Satellite3"));
+
+    }
+
 }

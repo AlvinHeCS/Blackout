@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import unsw.response.models.EntityInfoResponse;
 import unsw.response.models.FileInfoResponse;
 import unsw.utils.Angle;
+import static unsw.utils.MathsHelper.isVisible;
+import static unsw.utils.MathsHelper.getDistance;
 import static unsw.utils.MathsHelper.RADIUS_OF_JUPITER;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,20 +90,15 @@ public class BlackoutController {
     }
 
     public void simulate() {
-        // move satellites
-        for (Satellite satellite : satellites) {
-            if (satellite.getType().equals("StandardSatellite")) {
-                StandardSatellite standardSatellite = (StandardSatellite) satellite;
-                standardSatellite.standardSatelliteMovement();
+        satellites.forEach(satellite -> {
+            if (satellite instanceof StandardSatellite) {
+                ((StandardSatellite) satellite).standardSatelliteMovement();
+            } else if (satellite instanceof TeleportingSatellite) {
+                ((TeleportingSatellite) satellite).teleportingSatelliteMovement();
+            } else if (satellite instanceof RelaySatellite) {
+                ((RelaySatellite) satellite).relaySatelliteMovement();
             }
-            if (satellite.getType().equals("TeleportingSatellite")) {
-                TeleportingSatellite teleportingSatellite = (TeleportingSatellite) satellite;
-                teleportingSatellite.teleportingSatelliteMovement();
-            }
-        }
-
-        // during the move check if
-        // 
+        });
     }
 
     /**
@@ -114,13 +111,95 @@ public class BlackoutController {
         }
     }
 
+    private List<String> satelliteToSatelliteVisibility(String id) {
+        ArrayList<String> entitiesInRange = new ArrayList<>();
+        //get satellite id
+        Optional<Satellite> object = satellites.stream().filter(obj -> obj.getName().equals(id)).findFirst();
+        Satellite sourceSatellite = object.get();
+        //satellite to satellite
+        satellites.forEach(satellite -> {
+            if (sourceSatellite.checkSatelliteCommunicatable(satellite)) {
+                entitiesInRange.add(satellite.getName());
+            }
+            // add relay satellite extensions new satellite connections and device connections
+            if (satellite.getType().equals("RelaySatellite")) {
+                entitiesInRange.addAll(relayExtensionSatellite(satellite));
+                entitiesInRange.addAll(relayExtensionDevice(satellite));
+            }
+        });
+        return entitiesInRange;
+    }
+
+    private List<String> satelliteToDeviceVisibility(String id) {
+        ArrayList<String> entitiesInRange = new ArrayList<>();
+        //get satellite id
+        Optional<Satellite> object = satellites.stream().filter(obj -> obj.getName().equals(id)).findFirst();
+        Satellite sourceSatellite = object.get();
+        //satellite to device
+        devices.forEach(device -> {
+            if (sourceSatellite.checkSatelliteCommunicatable(device)) {
+                entitiesInRange.add(device.getName());
+            }
+        });
+        return entitiesInRange;
+    }
+
+    private List<String> deviceToSatelliteVisibility(String id) {
+        ArrayList<String> entitiesInRange = new ArrayList<>();
+        //get device id
+        Optional<Device> object = devices.stream().filter(obj -> obj.getName().equals(id)).findFirst();
+        Device sourceDevice = object.get();
+        //device to satellite
+        satellites.forEach(satellite -> {
+            if (sourceDevice.checkDeviceCommunicatable(satellite)) {
+                entitiesInRange.add(satellite.getName());
+                // add relay satellite extensions new satellite connections
+            }
+            if (satellite.getType().equals("RelaySatellite")) {
+                entitiesInRange.addAll(relayExtensionSatellite(satellite));
+            }
+        });
+        return entitiesInRange;
+    }
+
+    private List<String> relayExtensionDevice(Satellite sourceSatellite) {
+        ArrayList<String> entitiesInRange = new ArrayList<>();
+        devices.forEach(device -> {
+            if (sourceSatellite.checkSatelliteCommunicatable(device)) {
+                entitiesInRange.add(device.getName());
+            }
+        });
+        return entitiesInRange;
+    }
+
+    private List<String> relayExtensionSatellite(Satellite sourceSatellite) {
+        ArrayList<String> entitiesInRange = new ArrayList<>();
+        satellites.forEach(satellite -> {
+            if (sourceSatellite.checkSatelliteCommunicatable(satellite)) {
+                entitiesInRange.add(satellite.getName());
+            }
+        });
+        return entitiesInRange;
+    }
+
     public List<String> communicableEntitiesInRange(String id) {
-        // TODO: Task 2 b)
-        return new ArrayList<>();
+
+        ArrayList<String> entitiesInRange = new ArrayList<>();
+        if (devices.stream().anyMatch(obj -> obj.getName().equals(id))) {
+            entitiesInRange.addAll(deviceToSatelliteVisibility(id));
+        } else {
+            entitiesInRange.addAll(satelliteToSatelliteVisibility(id));
+            entitiesInRange.addAll(satelliteToDeviceVisibility(id));
+        }
+
+        List<String> entitiesInRangeNoDuplicates = entitiesInRange.stream().distinct().collect(Collectors.toList());
+        entitiesInRangeNoDuplicates.removeIf(mainId -> mainId == id);
+        return entitiesInRangeNoDuplicates;
     }
 
     public void sendFile(String fileName, String fromId, String toId) throws FileTransferException {
         // TODO: Task 2 c)
+
     }
 
     public void createDevice(String deviceId, String type, Angle position, boolean isMoving) {

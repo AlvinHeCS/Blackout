@@ -18,6 +18,8 @@ public class TeleportingSatellite extends Satellite implements fileSatellite {
         setLinearSpeed(1000);
         setFileLimit(2147483647, 200);
         setFileTransferSpeeds(15, 10);
+        ArrayList<String> devices = new ArrayList<>();
+        devices.add("");
     }
 
     public ArrayList<File> getFiles() {
@@ -55,13 +57,11 @@ public class TeleportingSatellite extends Satellite implements fileSatellite {
         if (this.getDirection().equals("anticlockwise") && this.getDegree().toRadians() + angularVelocity >= Math.PI) {
             this.setDirection("clockwise");
             this.setDegree(Angle.fromDegrees(360));
-            System.out.println("it went through anticlockwise");
             return;
         }
         if (this.getDirection().equals("clockwise") && this.getDegree().toRadians() - angularVelocity <= Math.PI) {
             this.setDirection("anticlockwise");
             this.setDegree(Angle.fromDegrees(0));
-            System.out.println("it went through clockwise");
             return;
         }
         super.movement();

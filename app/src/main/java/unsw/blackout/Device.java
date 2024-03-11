@@ -1,7 +1,8 @@
 package unsw.blackout;
 
 import java.util.ArrayList;
-
+import static unsw.utils.MathsHelper.isVisible;
+import static unsw.utils.MathsHelper.getDistance;
 import unsw.utils.Angle;
 
 public abstract class Device {
@@ -50,5 +51,13 @@ public abstract class Device {
 
     public void setRange(int range) {
         this.range = range;
+    }
+
+    public boolean checkDeviceCommunicatable(Satellite satellite) {
+        if (isVisible(satellite.getHeight(), satellite.getDegree(), degree)
+                && getDistance(satellite.getHeight(), satellite.getDegree(), degree) < range) {
+            return true;
+        }
+        return false;
     }
 }
