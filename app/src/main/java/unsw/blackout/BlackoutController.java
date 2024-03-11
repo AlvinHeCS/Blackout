@@ -182,6 +182,40 @@ public class BlackoutController {
         return entitiesInRange;
     }
 
+    private boolean checkStandardSatelliteType(String id) {
+        if (satellites.stream().anyMatch(obj -> obj.getName().equals(id))) {
+            Optional<Satellite> object = satellites.stream().filter(obj -> obj.getName().equals(id)).findFirst();
+            Satellite satellite = object.get();
+            if (satellite.getType().equals("StandardSatellite")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkDesktopDeviceType(String id) {
+        if (devices.stream().anyMatch(obj -> obj.getName().equals(id))) {
+            Optional<Device> object = devices.stream().filter(obj -> obj.getName().equals(id)).findFirst();
+            Device device = object.get();
+            if (device.getType().equals("DesktopDevice")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<String> desktopScrapper(List<String> ids) {
+        ids.removeIf(id -> devices.stream()
+                .anyMatch(device -> device.getName().equals(id) && device.getType().equals("DesktopDevice")));
+        return ids;
+    }
+
+    private List<String> standardScrapper(List<String> ids) {
+        ids.removeIf(id -> satellites.stream().anyMatch(
+                satellite -> satellite.getName().equals(id) && satellite.getType().equals("StandardSatellite")));
+        return ids;
+    }
+
     public List<String> communicableEntitiesInRange(String id) {
 
         ArrayList<String> entitiesInRange = new ArrayList<>();
@@ -194,6 +228,12 @@ public class BlackoutController {
 
         List<String> entitiesInRangeNoDuplicates = entitiesInRange.stream().distinct().collect(Collectors.toList());
         entitiesInRangeNoDuplicates.removeIf(mainId -> mainId == id);
+        if (checkStandardSatelliteType(id)) {
+            return desktopScrapper(entitiesInRangeNoDuplicates);
+        }
+        if (checkDesktopDeviceType(id)) {
+            return standardScrapper(entitiesInRangeNoDuplicates);
+        }
         return entitiesInRangeNoDuplicates;
     }
 

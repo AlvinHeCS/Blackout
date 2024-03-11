@@ -4,8 +4,6 @@ connected to an abstract class, or interface etc.
 
 Starting of coding assignment making files and building connections. alot of groundwork has been layed out. Next time I start working need to implement Satellite so add satellite is working
 
-
-
 8/03/24
 changed UML diagram bsed on advice from tutors and new knowedlge of UML diagrams. altered code to reflect these changes. Next time I start coding make sure to implement the interface for standard satellite and finish of stage 1
 
@@ -14,3 +12,8 @@ conintue standard satellite movement downcasting to call method, finished moveme
 
 11/03/24
 finished list entity in range function. Wrote tests as well and everything seems to be functional including relay satellite extensions. However code is mostly in blackout controller. Need to find a better way to strucutre the code and dump them in there. Also alot of the code is very repetitive.
+
+11/03/24
+Forgot to add non supported devices for standdard satellite and Desktopdevices
+redid the code. But the code feels really janky now (its pre messy ngl). Need some tutor advice on how to fix it.
+

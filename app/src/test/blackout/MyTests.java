@@ -97,6 +97,22 @@ public class MyTests {
     }
 
     @Test
+    public void testStandardSatelliteDesktopException() {
+        // Task 2
+        // Example from the specification
+        BlackoutController controller = new BlackoutController();
+
+        // Creates 1 satellite and 2 devices
+        // Gets a device to send a file to a satellites and gets another device to download it.
+        // StandardSatellites are slow and transfer 1 byte per minute.
+        controller.createSatellite("Satellite4", "StandardSatellite", 76123, Angle.fromDegrees(234.16));
+        controller.createDevice("DeviceD", "DesktopDevice", Angle.fromDegrees(236.99));
+
+        assertListAreEqualIgnoringOrder(Arrays.asList(), controller.communicableEntitiesInRange("Satellite4"));
+
+    }
+
+    @Test
     public void testRangewithRelayDeviceToSatellite() {
         // Task 2
         // Example from the specification
