@@ -75,29 +75,22 @@ public class BlackoutController {
     }
 
     public EntityInfoResponse getInfo(String id) {
-        // temp map
-        Map<String, FileInfoResponse> map = new HashMap<>();
-        if (devices.stream().anyMatch(obj -> obj.getName().equals(id))) {
-            Optional<Device> object = devices.stream().filter(obj -> obj.getName().equals(id)).findFirst();
-            Device device = object.get();
-
-            return new EntityInfoResponse(id, device.getDegree(), RADIUS_OF_JUPITER, device.getType(), map);
-        } else {
-            Optional<Satellite> object = satellites.stream().filter(obj -> obj.getName().equals(id)).findFirst();
-            Satellite satellite = object.get();
-            return new EntityInfoResponse(id, satellite.getDegree(), satellite.getHeight(), satellite.getType(), map);
+        Map<String, FileInfoResponse> map = new HashMap<String, FileInfoResponse>();
+        ArrayList<Entity> entities = getEntityList(devices, satellites);
+        Entity sourceEntity = entities.stream().filter(entity -> entity.getName().equals(id)).findFirst().orElse(null);
+        ArrayList<File> files = sourceEntity.getFiles();
+        // need to replace true with transmitted bits.
+        for (File file : files) {
+            map.put(file.getName(), new FileInfoResponse(file.getName(), file.getContent(), file.getSize(), true));
         }
+        return new EntityInfoResponse(id, sourceEntity.getDegree(), sourceEntity.getHeight(), sourceEntity.getType(),
+                map);
+
     }
 
     public void simulate() {
         satellites.forEach(satellite -> {
-            if (satellite instanceof StandardSatellite) {
-                ((StandardSatellite) satellite).standardSatelliteMovement();
-            } else if (satellite instanceof TeleportingSatellite) {
-                ((TeleportingSatellite) satellite).teleportingSatelliteMovement();
-            } else if (satellite instanceof RelaySatellite) {
-                ((RelaySatellite) satellite).relaySatelliteMovement();
-            }
+            satellite.movement();
         });
     }
 
@@ -111,130 +104,35 @@ public class BlackoutController {
         }
     }
 
-    private List<String> satelliteToSatelliteVisibility(String id) {
-        ArrayList<String> entitiesInRange = new ArrayList<>();
-        //get satellite id
-        Optional<Satellite> object = satellites.stream().filter(obj -> obj.getName().equals(id)).findFirst();
-        Satellite sourceSatellite = object.get();
-        //satellite to satellite
-        satellites.forEach(satellite -> {
-            if (sourceSatellite.checkSatelliteCommunicatable(satellite)) {
-                entitiesInRange.add(satellite.getName());
-            }
-            // add relay satellite extensions new satellite connections and device connections
-            if (satellite.getType().equals("RelaySatellite")) {
-                entitiesInRange.addAll(relayExtensionSatellite(satellite));
-                entitiesInRange.addAll(relayExtensionDevice(satellite));
-            }
-        });
-        return entitiesInRange;
+    private ArrayList<Entity> getEntityList(ArrayList<Device> devices, ArrayList<Satellite> satellites) {
+        ArrayList<Entity> entities = new ArrayList<>();
+        devices.forEach(device -> entities.add((Entity) device));
+        satellites.forEach(satellite -> entities.add((Entity) satellite));
+        return entities;
     }
 
-    private List<String> satelliteToDeviceVisibility(String id) {
-        ArrayList<String> entitiesInRange = new ArrayList<>();
-        //get satellite id
-        Optional<Satellite> object = satellites.stream().filter(obj -> obj.getName().equals(id)).findFirst();
-        Satellite sourceSatellite = object.get();
-        //satellite to device
-        devices.forEach(device -> {
-            if (sourceSatellite.checkSatelliteCommunicatable(device)) {
-                entitiesInRange.add(device.getName());
-            }
-        });
-        return entitiesInRange;
-    }
-
-    private List<String> deviceToSatelliteVisibility(String id) {
-        ArrayList<String> entitiesInRange = new ArrayList<>();
-        //get device id
-        Optional<Device> object = devices.stream().filter(obj -> obj.getName().equals(id)).findFirst();
-        Device sourceDevice = object.get();
-        //device to satellite
-        satellites.forEach(satellite -> {
-            if (sourceDevice.checkDeviceCommunicatable(satellite)) {
-                entitiesInRange.add(satellite.getName());
-                // add relay satellite extensions new satellite connections
-            }
-            if (satellite.getType().equals("RelaySatellite")) {
-                entitiesInRange.addAll(relayExtensionSatellite(satellite));
-            }
-        });
-        return entitiesInRange;
-    }
-
-    private List<String> relayExtensionDevice(Satellite sourceSatellite) {
-        ArrayList<String> entitiesInRange = new ArrayList<>();
-        devices.forEach(device -> {
-            if (sourceSatellite.checkSatelliteCommunicatable(device)) {
-                entitiesInRange.add(device.getName());
-            }
-        });
-        return entitiesInRange;
-    }
-
-    private List<String> relayExtensionSatellite(Satellite sourceSatellite) {
-        ArrayList<String> entitiesInRange = new ArrayList<>();
-        satellites.forEach(satellite -> {
-            if (sourceSatellite.checkSatelliteCommunicatable(satellite)) {
-                entitiesInRange.add(satellite.getName());
-            }
-        });
-        return entitiesInRange;
-    }
-
-    private boolean checkStandardSatelliteType(String id) {
-        if (satellites.stream().anyMatch(obj -> obj.getName().equals(id))) {
-            Optional<Satellite> object = satellites.stream().filter(obj -> obj.getName().equals(id)).findFirst();
-            Satellite satellite = object.get();
-            if (satellite.getType().equals("StandardSatellite")) {
-                return true;
+    private ArrayList<String> relayExtension(ArrayList<String> ids) {
+        ArrayList<Entity> entities = getEntityList(devices, satellites);
+        ArrayList<String> entitiesValid = new ArrayList<>();
+        for (String id : ids) {
+            Entity sourceEntity = entities.stream().filter(entity -> entity.getName().equals(id)).findFirst()
+                    .orElse(null);
+            if (sourceEntity.getType().equals("RelaySatellite")) {
+                entitiesValid = sourceEntity.checkEntityAllCommunicatable(entities);
             }
         }
-        return false;
-    }
-
-    private boolean checkDesktopDeviceType(String id) {
-        if (devices.stream().anyMatch(obj -> obj.getName().equals(id))) {
-            Optional<Device> object = devices.stream().filter(obj -> obj.getName().equals(id)).findFirst();
-            Device device = object.get();
-            if (device.getType().equals("DesktopDevice")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private List<String> desktopScrapper(List<String> ids) {
-        ids.removeIf(id -> devices.stream()
-                .anyMatch(device -> device.getName().equals(id) && device.getType().equals("DesktopDevice")));
-        return ids;
-    }
-
-    private List<String> standardScrapper(List<String> ids) {
-        ids.removeIf(id -> satellites.stream().anyMatch(
-                satellite -> satellite.getName().equals(id) && satellite.getType().equals("StandardSatellite")));
-        return ids;
+        entitiesValid.addAll(ids);
+        return entitiesValid;
     }
 
     public List<String> communicableEntitiesInRange(String id) {
-
-        ArrayList<String> entitiesInRange = new ArrayList<>();
-        if (devices.stream().anyMatch(obj -> obj.getName().equals(id))) {
-            entitiesInRange.addAll(deviceToSatelliteVisibility(id));
-        } else {
-            entitiesInRange.addAll(satelliteToSatelliteVisibility(id));
-            entitiesInRange.addAll(satelliteToDeviceVisibility(id));
-        }
-
-        List<String> entitiesInRangeNoDuplicates = entitiesInRange.stream().distinct().collect(Collectors.toList());
-        entitiesInRangeNoDuplicates.removeIf(mainId -> mainId == id);
-        if (checkStandardSatelliteType(id)) {
-            return desktopScrapper(entitiesInRangeNoDuplicates);
-        }
-        if (checkDesktopDeviceType(id)) {
-            return standardScrapper(entitiesInRangeNoDuplicates);
-        }
-        return entitiesInRangeNoDuplicates;
+        ArrayList<Entity> entities = getEntityList(devices, satellites);
+        Entity sourceEntity = entities.stream().filter(entity -> entity.getName().equals(id)).findFirst().orElse(null);
+        ArrayList<String> entitiesValid = sourceEntity.checkEntityAllCommunicatable(entities);
+        entitiesValid = relayExtension(entitiesValid);
+        List<String> entitiesValidNoDuplicates = entitiesValid.stream().distinct().collect(Collectors.toList());
+        entitiesValidNoDuplicates.removeIf(mainId -> mainId == id);
+        return entitiesValidNoDuplicates;
     }
 
     public void sendFile(String fileName, String fromId, String toId) throws FileTransferException {

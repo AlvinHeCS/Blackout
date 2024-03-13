@@ -17,3 +17,10 @@ finished list entity in range function. Wrote tests as well and everything seems
 Forgot to add non supported devices for standdard satellite and Desktopdevices
 redid the code. But the code feels really janky now (its pre messy ngl). Need some tutor advice on how to fix it.
 
+
+12/03/24
+Went to lab to get tutors help know I need to make entity class now to fix all the code in black box and make style better
+
+
+13/03/24
+implemented entities class and refactored code to reflect this change (bruh this took so long and i had to delete 90% of my visibility code sadge).
