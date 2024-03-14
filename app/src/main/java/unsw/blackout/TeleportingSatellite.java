@@ -11,7 +11,7 @@ public class TeleportingSatellite extends Satellite {
         setDirection("anticlockwise");
         setRange(200000);
         setLinearSpeed(1000);
-        setFileLimit(2147483647, 200);
+        setFileLimit(MAX, MAX);
         setFileTransferSpeeds(15, 10);
         this.setEntitySupported(new ArrayList<String>(Arrays.asList("StandardSatellite", "TeleportingSatellite",
                 "RelaySatellite", "HandheldDevice", "LaptopDevice", "DesktopDevice")));

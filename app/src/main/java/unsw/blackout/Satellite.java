@@ -2,11 +2,9 @@ package unsw.blackout;
 
 import unsw.utils.Angle;
 
-public abstract class Satellite extends Entity implements fileSatellite {
+public abstract class Satellite extends Entity {
     private int linearSpeed;
     private String direction;
-    private int[] fileLimit = new int[2];
-    private int[] fileTransferSpeed = new int[2];
 
     public Satellite(String name, double height, Angle degree) {
         super(name, height, degree);
@@ -27,31 +25,6 @@ public abstract class Satellite extends Entity implements fileSatellite {
 
     public void setLinearSpeed(int linearSpeed) {
         this.linearSpeed = linearSpeed;
-    }
-
-    public int[] getFileLimit() {
-        return this.fileLimit;
-    }
-
-    public void setFileLimit(int fileQuantity, int fileSize) {
-        this.fileLimit[0] = fileQuantity;
-        this.fileLimit[1] = fileSize;
-    }
-
-    public int[] getFileTransferSpeeds() {
-        return fileTransferSpeed;
-    }
-
-    public void setFileTransferSpeeds(int recieving, int sending) {
-        this.fileTransferSpeed[0] = recieving;
-        this.fileTransferSpeed[1] = sending;
-    }
-
-    public boolean addFileCheck(File file) {
-        if (this.getFiles().size() >= this.getFileLimit()[0] || file.getSize() > this.getFileLimit()[1]) {
-            return false;
-        }
-        return true;
     }
 
     public void clockwise(double angularVelocity) {

@@ -13,12 +13,20 @@ public abstract class Entity {
     private ArrayList<String> entitySupported;
     private ArrayList<File> files;
     private int range;
+    private int[] fileLimit = new int[2];
+    private int[] fileTransferSpeed = new int[2];
+    private int filesRecieving;
+    private int filesSending;
+    private int usedSpace;
+    public static final int MAX = 2147483647;
 
     public Entity(String name, double height, Angle degree) {
         this.name = name;
         this.degree = degree;
         this.height = height;
         this.setFiles(new ArrayList<File>());
+        this.filesRecieving = 0;
+        this.filesSending = 0;
     }
 
     public double getHeight() {
@@ -37,8 +45,8 @@ public abstract class Entity {
         return this.files;
     }
 
-    public void addFile(String filename, String content) {
-        File file = new File(filename, content, content.length());
+    public void addFile(String filename, String content, int transmittedBytes) {
+        File file = new File(filename, content, content.length(), transmittedBytes);
         this.files.add(file);
     }
 
@@ -104,5 +112,57 @@ public abstract class Entity {
             }
         }
         return entitiesInRange;
+    }
+
+    public int[] getFileLimit() {
+        return this.fileLimit;
+    }
+
+    public void setFileLimit(int fileQuantity, int fileSize) {
+        this.fileLimit[0] = fileQuantity;
+        this.fileLimit[1] = fileSize;
+    }
+
+    public int[] getFileTransferSpeeds() {
+        return fileTransferSpeed;
+    }
+
+    public void setFileTransferSpeeds(int recieving, int sending) {
+        this.fileTransferSpeed[0] = recieving;
+        this.fileTransferSpeed[1] = sending;
+    }
+
+    public int getFilesSending() {
+        return this.filesSending;
+    }
+
+    public void setFilesSending(int fileSending) {
+        this.filesSending = fileSending;
+    }
+
+    public int getFilesRecieving() {
+        return this.filesRecieving;
+    }
+
+    public void setFilesRecieving(int fileRecieving) {
+        this.filesRecieving = fileRecieving;
+    }
+
+    public int calcUsedSpace() {
+        for (File file : this.files) {
+            this.usedSpace = this.usedSpace + file.getSize();
+        }
+        return this.usedSpace;
+    }
+
+    public File getFile(String fileName) {
+        for (File file : files) {
+            System.out.println(file.getTotalContent());
+            System.out.println(fileName);
+            if (file.getName().equals(fileName)) {
+                return file;
+            }
+        }
+        return null;
     }
 }

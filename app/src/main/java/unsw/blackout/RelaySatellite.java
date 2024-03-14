@@ -14,8 +14,8 @@ public class RelaySatellite extends Satellite {
                 "RelaySatellite", "HandheldDevice", "LaptopDevice", "DesktopDevice")));
         setRange(300000);
         setLinearSpeed(1500);
-        setFileLimit(2147483647, 200);
-        setFileTransferSpeeds(15, 10);
+        setFileLimit(0, 0);
+        setFileTransferSpeeds(0, 0);
     }
 
     @Override

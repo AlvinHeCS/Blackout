@@ -8,9 +8,7 @@ import java.util.stream.Collectors;
 import unsw.response.models.EntityInfoResponse;
 import unsw.response.models.FileInfoResponse;
 import unsw.utils.Angle;
-import static unsw.utils.MathsHelper.isVisible;
-import static unsw.utils.MathsHelper.getDistance;
-import static unsw.utils.MathsHelper.RADIUS_OF_JUPITER;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,7 +69,7 @@ public class BlackoutController {
     public void addFileToDevice(String deviceId, String filename, String content) {
         Optional<Device> object = devices.stream().filter(obj -> obj.getName().equals(deviceId)).findFirst();
         Device device = object.get();
-        device.addFile(filename, content);
+        device.addFile(filename, content, content.length());
     }
 
     public EntityInfoResponse getInfo(String id) {
@@ -79,9 +77,9 @@ public class BlackoutController {
         ArrayList<Entity> entities = getEntityList(devices, satellites);
         Entity sourceEntity = entities.stream().filter(entity -> entity.getName().equals(id)).findFirst().orElse(null);
         ArrayList<File> files = sourceEntity.getFiles();
-        // need to replace true with transmitted bits.
         for (File file : files) {
-            map.put(file.getName(), new FileInfoResponse(file.getName(), file.getContent(), file.getSize(), true));
+            map.put(file.getName(), new FileInfoResponse(file.getName(), file.getContent(), file.getSize(),
+                    file.successfullyTransfered()));
         }
         return new EntityInfoResponse(id, sourceEntity.getDegree(), sourceEntity.getHeight(), sourceEntity.getType(),
                 map);
@@ -89,9 +87,15 @@ public class BlackoutController {
     }
 
     public void simulate() {
+        ArrayList<Entity> entities = getEntityList(devices, satellites);
         satellites.forEach(satellite -> {
             satellite.movement();
         });
+        for (Entity entity : entities) {
+            for (File file : entity.getFiles()) {
+                file.updateFile();
+            }
+        }
     }
 
     /**
@@ -136,7 +140,29 @@ public class BlackoutController {
     }
 
     public void sendFile(String fileName, String fromId, String toId) throws FileTransferException {
-        // TODO: Task 2 c)
+        ArrayList<Entity> entities = getEntityList(devices, satellites);
+        Entity sender = entities.stream().filter(entity -> entity.getName().equals(fromId)).findFirst().orElse(null);
+        Entity reciever = entities.stream().filter(entity -> entity.getName().equals(toId)).findFirst().orElse(null);
+        File senderFile = sender.getFile(fileName);
+
+        if (senderFile == null || senderFile.getBytesTransmitted() != senderFile.getSize()) {
+            throw new FileTransferException.VirtualFileNotFoundException(
+                    fileName + "is not found or hasnt finished dowloading");
+        }
+        if (reciever.getFileTransferSpeeds()[0] / (reciever.getFilesRecieving() + 1) < 1) {
+            throw new FileTransferException.VirtualFileNoBandwidthException(reciever + "Max Bandwidth Reached");
+        }
+        if (reciever.getFiles().stream().anyMatch(currfile -> currfile.getName().equals(fileName))) {
+            throw new FileTransferException.VirtualFileAlreadyExistsException(fileName + "is already on that entity");
+        }
+        if (reciever.getFiles().size() + 1 > reciever.getFileLimit()[0]) {
+            throw new FileTransferException.VirtualFileNoStorageSpaceException(reciever + "Max Files Reached");
+        }
+        if (senderFile.getSize() + reciever.calcUsedSpace() > reciever.getFileLimit()[1]) {
+            throw new FileTransferException.VirtualFileNoStorageSpaceException(reciever + "Max Storage Reached");
+        }
+
+        reciever.addFile(fileName, senderFile.getContent(), 0);
 
     }
 
