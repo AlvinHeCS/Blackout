@@ -77,15 +77,7 @@ public class BlackoutController {
         Entity sourceEntity = entities.stream().filter(entity -> entity.getName().equals(entityid)).findFirst()
                 .orElse(null);
         ArrayList<File> files = sourceEntity.getFiles();
-        for (File file : files) {
-            //System.out.println(file.getName());
-        }
         files.removeIf(file -> file.getName().equals(filename));
-        // System.out.println(files.size());
-        for (File file : files) {
-            //System.out.println("went into this");
-            //System.out.println(file.getName());
-        }
         sourceEntity.setFiles(files);
     }
 
@@ -94,7 +86,6 @@ public class BlackoutController {
         ArrayList<Entity> entities = getEntityList(devices, satellites);
         Entity sourceEntity = entities.stream().filter(entity -> entity.getName().equals(id)).findFirst().orElse(null);
         ArrayList<File> files = sourceEntity.getFiles();
-        //System.out.println("size of files equals " + files.size());
         for (File file : files) {
             map.put(file.getName(), new FileInfoResponse(file.getName(), file.getContent(), file.getSize(),
                     file.successfullyTransfered()));
@@ -109,9 +100,6 @@ public class BlackoutController {
             satellite.movement();
         });
         for (Entity entity : entities) {
-            //System.out.println(entity.getName());
-            //System.out.println("this is the from id " + entity.getFiles().get(0).getFromId());
-            //System.out.println("this is the too id " + entity.getFiles().get(0).getToId());
             List<File> filesToRemove = entity.getFiles().stream().filter(
                     file -> (!entitiesStillInRange(file.getFromId(), file.getToId()) && !file.successfullyTransfered()))
                     .collect(Collectors.toList());
@@ -128,7 +116,6 @@ public class BlackoutController {
                         + " fpr entity: " + entity.getName());
             }
             System.out.println("---------");
-            // Update files that are still in range
             entity.getFiles().forEach(File::updateFile);
         }
     }

@@ -2,11 +2,7 @@ package unsw.blackout;
 
 import unsw.utils.Angle;
 
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static unsw.utils.MathsHelper.isVisible;
 import static unsw.utils.MathsHelper.getDistance;
@@ -95,7 +91,7 @@ public abstract class Entity {
         this.files = files;
     }
 
-    private boolean Entitycompatability(Entity entity) {
+    private boolean entityCompatability(Entity entity) {
         for (String string : entity.getEntitySupported()) {
             if (this.getType().equals(string)) {
                 return true;
@@ -107,7 +103,7 @@ public abstract class Entity {
     public boolean checkEntityCommunicatable(Entity entity) {
         if (isVisible(this.height, this.degree, entity.getHeight(), entity.getDegree())
                 && getDistance(height, degree, entity.getHeight(), entity.getDegree()) < this.range
-                && Entitycompatability(entity)) {
+                && entityCompatability(entity)) {
             return true;
         }
         return false;

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import unsw.blackout.BlackoutController;
 import unsw.blackout.FileTransferException;
-import unsw.response.models.EntityInfoResponse;
+
 import unsw.response.models.FileInfoResponse;
 import unsw.utils.Angle;
 
@@ -16,8 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static blackout.TestHelpers.assertListAreEqualIgnoringOrder;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import static unsw.utils.MathsHelper.RADIUS_OF_JUPITER;
 
@@ -294,19 +292,6 @@ public class MyTests {
                 assertThrows(FileTransferException.VirtualFileNoStorageSpaceException.class,
                                 () -> controller.sendFile("FileAlpha4", "DeviceC", "Satellite2"));
 
-        }
-
-        @Test
-        public void testMaxStorageReached() {
-                BlackoutController controller = new BlackoutController();
-
-                String msg4 = "Explore new horizons, embrace growth, cherish moments, and live authentically. extension extension extension";
-                controller.createSatellite("Satellite2", "StandardSatellite", 10000 + RADIUS_OF_JUPITER,
-                                Angle.fromDegrees(340));
-                controller.createDevice("DeviceC", "LaptopDevice", Angle.fromDegrees(310));
-                controller.addFileToDevice("DeviceC", "FileAlpha", msg4);
-                assertThrows(FileTransferException.VirtualFileNoStorageSpaceException.class,
-                                () -> controller.sendFile("FileAlpha", "DeviceC", "Satellite2"));
         }
 
         @Test

@@ -79,12 +79,8 @@ public class File {
         return false;
     }
 
-    // need to check if its within range/
-
     public void updateFile() {
         if (!successfullyTransfered()) {
-            //System.out.println(this.getByteTransferSpeed());
-            //System.out.println(this.bytesTransmitted);
             this.bytesTransmitted = this.bytesTransmitted + this.getByteTransferSpeed();
             updateContent();
         }
