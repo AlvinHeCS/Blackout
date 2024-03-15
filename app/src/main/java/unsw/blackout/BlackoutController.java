@@ -72,18 +72,35 @@ public class BlackoutController {
         device.addFile(filename, content, content.length());
     }
 
+    public void removeFilefromEntity(String filename, String entityid) {
+        ArrayList<Entity> entities = getEntityList(devices, satellites);
+        Entity sourceEntity = entities.stream().filter(entity -> entity.getName().equals(entityid)).findFirst()
+                .orElse(null);
+        ArrayList<File> files = sourceEntity.getFiles();
+        for (File file : files) {
+            //System.out.println(file.getName());
+        }
+        files.removeIf(file -> file.getName().equals(filename));
+        // System.out.println(files.size());
+        for (File file : files) {
+            //System.out.println("went into this");
+            //System.out.println(file.getName());
+        }
+        sourceEntity.setFiles(files);
+    }
+
     public EntityInfoResponse getInfo(String id) {
         Map<String, FileInfoResponse> map = new HashMap<String, FileInfoResponse>();
         ArrayList<Entity> entities = getEntityList(devices, satellites);
         Entity sourceEntity = entities.stream().filter(entity -> entity.getName().equals(id)).findFirst().orElse(null);
         ArrayList<File> files = sourceEntity.getFiles();
+        //System.out.println("size of files equals " + files.size());
         for (File file : files) {
             map.put(file.getName(), new FileInfoResponse(file.getName(), file.getContent(), file.getSize(),
                     file.successfullyTransfered()));
         }
         return new EntityInfoResponse(id, sourceEntity.getDegree(), sourceEntity.getHeight(), sourceEntity.getType(),
                 map);
-
     }
 
     public void simulate() {
@@ -92,9 +109,27 @@ public class BlackoutController {
             satellite.movement();
         });
         for (Entity entity : entities) {
-            for (File file : entity.getFiles()) {
-                file.updateFile();
+            //System.out.println(entity.getName());
+            //System.out.println("this is the from id " + entity.getFiles().get(0).getFromId());
+            //System.out.println("this is the too id " + entity.getFiles().get(0).getToId());
+            List<File> filesToRemove = entity.getFiles().stream().filter(
+                    file -> (!entitiesStillInRange(file.getFromId(), file.getToId()) && !file.successfullyTransfered()))
+                    .collect(Collectors.toList());
+
+            System.out.println(
+                    "this is the entiteis file before removeal size: " + entity.getFiles().size() + " fpr entity: "
+                            + entity.getName() + " this is how many files i need to remove: " + filesToRemove.size());
+            for (File file : filesToRemove) {
+                System.out.println("is it the entities that are still in range: "
+                        + entitiesStillInRange(file.getFromId(), file.getToId()));
+                System.out.println("I went into this loop");
+                removeFilefromEntity(file.getName(), entity.getName());
+                System.out.println("this is the entiteis file after removeal size: " + entity.getFiles().size()
+                        + " fpr entity: " + entity.getName());
             }
+            System.out.println("---------");
+            // Update files that are still in range
+            entity.getFiles().forEach(File::updateFile);
         }
     }
 
@@ -139,17 +174,35 @@ public class BlackoutController {
         return entitiesValidNoDuplicates;
     }
 
+    private boolean entitiesStillInRange(Entity sender, Entity reciever) {
+        if (sender == null) {
+            return true;
+        }
+        System.out.println(
+                "in " + sender.getName() + "has visible entities " + communicableEntitiesInRange(sender.getName()));
+
+        return communicableEntitiesInRange(sender.getName()).stream().anyMatch(n -> n.equals(reciever.getName()));
+    }
+
     public void sendFile(String fileName, String fromId, String toId) throws FileTransferException {
         ArrayList<Entity> entities = getEntityList(devices, satellites);
         Entity sender = entities.stream().filter(entity -> entity.getName().equals(fromId)).findFirst().orElse(null);
         Entity reciever = entities.stream().filter(entity -> entity.getName().equals(toId)).findFirst().orElse(null);
-        File senderFile = sender.getFile(fileName);
+        File file = sender.getFile(fileName);
+        reciever.removeSuccessfullyTransferredFiles();
+        sender.removeSuccessfullyTransferredFiles();
 
-        if (senderFile == null || senderFile.getBytesTransmitted() != senderFile.getSize()) {
+        if (sender.getType().equals("RelaySatellite") || reciever.getType().equals("RelaySatellite")) {
+            throw new FileTransferException.VirtualFileNoBandwidthException(
+                    fromId + "does not have enough bandwidth to send the file");
+        }
+
+        if (file == null || file.getBytesTransmitted() != file.getSize()) {
             throw new FileTransferException.VirtualFileNotFoundException(
                     fileName + "is not found or hasnt finished dowloading");
         }
-        if (reciever.getFileTransferSpeeds()[0] / (reciever.getFilesRecieving() + 1) < 1) {
+        if (reciever.getFileTransferSpeeds()[0] / (reciever.getFilesRecieving().size() + 1) < 1
+                || sender.getFileTransferSpeeds()[1] / (sender.getFilesSending().size() + 1) < 1) {
             throw new FileTransferException.VirtualFileNoBandwidthException(reciever + "Max Bandwidth Reached");
         }
         if (reciever.getFiles().stream().anyMatch(currfile -> currfile.getName().equals(fileName))) {
@@ -158,12 +211,17 @@ public class BlackoutController {
         if (reciever.getFiles().size() + 1 > reciever.getFileLimit()[0]) {
             throw new FileTransferException.VirtualFileNoStorageSpaceException(reciever + "Max Files Reached");
         }
-        if (senderFile.getSize() + reciever.calcUsedSpace() > reciever.getFileLimit()[1]) {
+        if (file.getSize() + reciever.calcUsedSpace() > reciever.getFileLimit()[1]) {
             throw new FileTransferException.VirtualFileNoStorageSpaceException(reciever + "Max Storage Reached");
         }
 
-        reciever.addFile(fileName, senderFile.getContent(), 0);
-
+        file.setToId(reciever);
+        file.setFromId(sender);
+        reciever.addTransferFile(fileName, file.getContent(), 0, sender, reciever);
+        sender.addFiletoSending(file);
+        reciever.addFiletoRecieving(file);
+        reciever.updateBandwidth(reciever, sender);
+        sender.updateBandwidth(reciever, sender);
     }
 
     public void createDevice(String deviceId, String type, Angle position, boolean isMoving) {

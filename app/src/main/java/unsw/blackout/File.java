@@ -6,6 +6,9 @@ public class File {
     private int size;
     private int bytesTransmitted;
     private String totalContent;
+    private int byteTransferSpeed = 0;
+    private Entity fromId;
+    private Entity toId;
 
     public File(String name, String content, int size, int bytesTransmitted) {
         this.name = name;
@@ -13,6 +16,32 @@ public class File {
         this.size = size;
         this.bytesTransmitted = bytesTransmitted;
         this.totalContent = content;
+    }
+
+    public File(String name, String content, int size, int bytesTransmitted, Entity sender, Entity reciever) {
+        this.name = name;
+        this.content = content.substring(0, bytesTransmitted);
+        this.size = size;
+        this.bytesTransmitted = bytesTransmitted;
+        this.totalContent = content;
+        this.fromId = sender;
+        this.toId = reciever;
+    }
+
+    public void setFromId(Entity fromId) {
+        this.fromId = fromId;
+    }
+
+    public Entity getFromId() {
+        return this.fromId;
+    }
+
+    public void setToId(Entity toId) {
+        this.toId = toId;
+    }
+
+    public Entity getToId() {
+        return this.toId;
     }
 
     public String getName() {
@@ -28,10 +57,7 @@ public class File {
     }
 
     public void updateContent() {
-        this.content = this.totalContent.substring(0, bytesTransmitted);
-        System.out.println(totalContent);
-        System.out.println(bytesTransmitted);
-        System.out.println(this.totalContent.substring(0, bytesTransmitted));
+        this.content = this.totalContent.substring(0, Math.min(totalContent.length(), bytesTransmitted));
     }
 
     public int getSize() {
@@ -57,8 +83,19 @@ public class File {
 
     public void updateFile() {
         if (!successfullyTransfered()) {
-            this.bytesTransmitted = this.bytesTransmitted + 1;
+            //System.out.println(this.getByteTransferSpeed());
+            //System.out.println(this.bytesTransmitted);
+            this.bytesTransmitted = this.bytesTransmitted + this.getByteTransferSpeed();
             updateContent();
         }
     }
+
+    public void setByteTransferSpeed(int transferSpeed) {
+        this.byteTransferSpeed = transferSpeed;
+    }
+
+    public int getByteTransferSpeed() {
+        return byteTransferSpeed;
+    }
+
 }

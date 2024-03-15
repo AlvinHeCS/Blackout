@@ -24,3 +24,9 @@ Went to lab to get tutors help know I need to make entity class now to fix all t
 
 13/03/24
 implemented entities class and refactored code to reflect this change (bruh this took so long and i had to delete 90% of my visibility code sadge).
+
+14/03/24
+Starting file transfer code realised i should of planned my approach before hand as i feel like i keep discovering things i need while coding it
+
+15/03/24 
+Finished coding file transfer. 

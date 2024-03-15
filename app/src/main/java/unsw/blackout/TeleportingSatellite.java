@@ -20,16 +20,21 @@ public class TeleportingSatellite extends Satellite {
     @Override
     public void movement() {
         double angularVelocity = this.getLinearSpeed() / this.getHeight();
-        if (this.getDirection().equals("anticlockwise") && this.getDegree().toRadians() + angularVelocity >= Math.PI) {
+        System.out.println(this.getDegree().toRadians() + angularVelocity);
+        System.out.println(this.getDegree().toDegrees());
+        if (this.getDirection().equals("anticlockwise") && this.getDegree().toRadians() + angularVelocity >= Math.PI
+                && this.getDegree().toRadians() < Math.PI) {
             this.setDirection("clockwise");
             this.setDegree(Angle.fromDegrees(360));
             return;
         }
-        if (this.getDirection().equals("clockwise") && this.getDegree().toRadians() - angularVelocity <= Math.PI) {
+        if (this.getDirection().equals("clockwise") && this.getDegree().toRadians() - angularVelocity <= Math.PI
+                && this.getDegree().toRadians() > Math.PI) {
             this.setDirection("anticlockwise");
             this.setDegree(Angle.fromDegrees(0));
             return;
         }
+
         angularVelocity = this.getLinearSpeed() / this.getHeight();
         if (this.getDirection().equals("clockwise")) {
             this.clockwise(angularVelocity);

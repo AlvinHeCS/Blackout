@@ -40,12 +40,13 @@ public class Task2ExampleTests {
                 controller.createDevice("DeviceD", "HandheldDevice", Angle.fromDegrees(180));
                 controller.createSatellite("Satellite3", "StandardSatellite", 2000 + RADIUS_OF_JUPITER,
                                 Angle.fromDegrees(175));
+                controller.createSatellite("Satellite4", "TeleportingSatellite", 79683, Angle.fromDegrees(335.7722));
 
-                assertListAreEqualIgnoringOrder(Arrays.asList("DeviceC", "Satellite2"),
+                assertListAreEqualIgnoringOrder(Arrays.asList("DeviceC", "Satellite2", "Satellite4"),
                                 controller.communicableEntitiesInRange("Satellite1"));
-                assertListAreEqualIgnoringOrder(Arrays.asList("DeviceB", "DeviceC", "Satellite1"),
+                assertListAreEqualIgnoringOrder(Arrays.asList("DeviceB", "DeviceC", "Satellite1", "Satellite4"),
                                 controller.communicableEntitiesInRange("Satellite2"));
-                assertListAreEqualIgnoringOrder(Arrays.asList("Satellite2"),
+                assertListAreEqualIgnoringOrder(Arrays.asList("Satellite2", "Satellite4"),
                                 controller.communicableEntitiesInRange("DeviceB"));
 
                 assertListAreEqualIgnoringOrder(Arrays.asList("DeviceD"),
@@ -97,6 +98,24 @@ public class Task2ExampleTests {
         }
 
         @Test
+        public void testMovementTeleporter() {
+                // Task 2
+                // Example from the specification
+                BlackoutController controller = new BlackoutController();
+
+                // Creates 1 satellite and 2 devices
+                // Gets a device to send a file to a satellites and gets another device to download it.
+                // StandardSatellites are slow and transfer 1 byte per minute.
+                controller.createSatellite("Satellite1", "TeleportingSatellite", 100 + RADIUS_OF_JUPITER,
+                                Angle.fromDegrees(340));
+                assertEquals(new EntityInfoResponse("Satellite1", Angle.fromDegrees(340), 100 + RADIUS_OF_JUPITER,
+                                "TeleportingSatellite"), controller.getInfo("Satellite1"));
+                controller.simulate();
+                assertEquals(new EntityInfoResponse("Satellite1", Angle.fromDegrees(340.8183), 100 + RADIUS_OF_JUPITER,
+                                "TeleportingSatellite"), controller.getInfo("Satellite1"));
+        }
+
+        @Test
         public void testExample() {
                 // Task 2
                 // Example from the specification
@@ -122,6 +141,10 @@ public class Task2ExampleTests {
 
                 assertDoesNotThrow(() -> controller.sendFile("FileAlpha", "Satellite1", "DeviceB"));
                 assertEquals(new FileInfoResponse("FileAlpha", "", msg.length(), false),
+                                controller.getInfo("DeviceB").getFiles().get("FileAlpha"));
+
+                controller.simulate();
+                assertEquals(new FileInfoResponse("FileAlpha", "H", msg.length(), false),
                                 controller.getInfo("DeviceB").getFiles().get("FileAlpha"));
 
                 controller.simulate(msg.length());

@@ -90,5 +90,7 @@ public class Task1ExampleTests {
                                 new FileInfoResponse("Hello World", "My first file!", "My first file!".length(), true));
                 assertEquals(new EntityInfoResponse("DeviceC", Angle.fromDegrees(330), RADIUS_OF_JUPITER,
                                 "DesktopDevice", expected), controller.getInfo("DeviceC"));
+                controller.removeFilefromEntity("Hello World", "DeviceC");
+                assertEquals(null, controller.getInfo("DeviceC").getFiles().get("Hello World"));
         }
 }

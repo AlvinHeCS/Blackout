@@ -1,7 +1,13 @@
 package unsw.blackout;
 
 import unsw.utils.Angle;
+
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static unsw.utils.MathsHelper.isVisible;
 import static unsw.utils.MathsHelper.getDistance;
 
@@ -15,8 +21,8 @@ public abstract class Entity {
     private int range;
     private int[] fileLimit = new int[2];
     private int[] fileTransferSpeed = new int[2];
-    private int filesRecieving;
-    private int filesSending;
+    private ArrayList<File> filesRecieving = new ArrayList<File>();
+    private ArrayList<File> filesSending = new ArrayList<File>();
     private int usedSpace;
     public static final int MAX = 2147483647;
 
@@ -25,8 +31,6 @@ public abstract class Entity {
         this.degree = degree;
         this.height = height;
         this.setFiles(new ArrayList<File>());
-        this.filesRecieving = 0;
-        this.filesSending = 0;
     }
 
     public double getHeight() {
@@ -47,6 +51,11 @@ public abstract class Entity {
 
     public void addFile(String filename, String content, int transmittedBytes) {
         File file = new File(filename, content, content.length(), transmittedBytes);
+        this.files.add(file);
+    }
+
+    public void addTransferFile(String filename, String content, int transmittedBytes, Entity sender, Entity reciever) {
+        File file = new File(filename, content, content.length(), transmittedBytes, sender, reciever);
         this.files.add(file);
     }
 
@@ -132,20 +141,28 @@ public abstract class Entity {
         this.fileTransferSpeed[1] = sending;
     }
 
-    public int getFilesSending() {
+    public ArrayList<File> getFilesSending() {
         return this.filesSending;
     }
 
-    public void setFilesSending(int fileSending) {
+    public void setFilesSending(ArrayList<File> fileSending) {
         this.filesSending = fileSending;
     }
 
-    public int getFilesRecieving() {
+    public ArrayList<File> getFilesRecieving() {
         return this.filesRecieving;
     }
 
-    public void setFilesRecieving(int fileRecieving) {
+    public void setFilesRecieving(ArrayList<File> fileRecieving) {
         this.filesRecieving = fileRecieving;
+    }
+
+    public int calcRecievingBandwidth() {
+        return this.getFileTransferSpeeds()[0] / this.getFilesRecieving().size();
+    }
+
+    public int calcSendingBandwidth() {
+        return this.getFileTransferSpeeds()[1] / this.getFilesSending().size();
     }
 
     public int calcUsedSpace() {
@@ -157,12 +174,35 @@ public abstract class Entity {
 
     public File getFile(String fileName) {
         for (File file : files) {
-            System.out.println(file.getTotalContent());
-            System.out.println(fileName);
             if (file.getName().equals(fileName)) {
                 return file;
             }
         }
         return null;
+    }
+
+    public void removeSuccessfullyTransferredFiles() {
+
+        for (File file : files) {
+            if (file.successfullyTransfered()) {
+                String name = file.getName();
+                this.filesRecieving.removeIf(fileRecieving -> fileRecieving.getName().equals(name));
+                this.filesSending.removeIf(fileSending -> fileSending.getName().equals(name));
+            }
+        }
+    }
+
+    public void addFiletoSending(File file) {
+        this.filesSending.add(file);
+    }
+
+    public void addFiletoRecieving(File file) {
+        this.filesRecieving.add(file);
+    }
+
+    public void updateBandwidth(Entity reciving, Entity sending) {
+        for (File file : files) {
+            file.setByteTransferSpeed(Math.min(reciving.calcRecievingBandwidth(), sending.calcSendingBandwidth()));
+        }
     }
 }
